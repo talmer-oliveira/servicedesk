@@ -34,7 +34,7 @@ public class ServiceCategoryResource {
 					.path("/{id}").buildAndExpand(serviceCategory.getId()).toUri();
 			return ResponseEntity.created(uri).build();
 		} catch (ServiceCategoryAlreadyRegisteredException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 	}
 }
