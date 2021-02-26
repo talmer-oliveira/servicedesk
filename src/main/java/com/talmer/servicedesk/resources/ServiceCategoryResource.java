@@ -1,8 +1,10 @@
 package com.talmer.servicedesk.resources;
 
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -37,4 +39,11 @@ public class ServiceCategoryResource {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 	}
+	
+	@RequestMapping(method = GET)
+	public ResponseEntity<List<ServiceCategoryDTO>> findAll(){
+		List<ServiceCategoryDTO> serviceCategories = categoryService.findAll();
+		return ResponseEntity.ok().body(serviceCategories);
+	}
+
 }

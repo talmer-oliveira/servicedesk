@@ -1,10 +1,15 @@
 package com.talmer.servicedesk.resources;
 
 import static com.talmer.servicedesk.domain.enums.ServiceCategoryType.SERVICE_REQUEST;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +21,6 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.google.gson.Gson;
@@ -73,5 +77,21 @@ public class ServiceCategoryResourceTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(gson.toJson(alreadyRegisteredCategoryDTO)))
 				.andExpect(status().isForbidden());
+	}
+	
+	@Test
+	public void whenGETListOfServiceCategoryIsCalledThenOKStatusIsReturned() throws Exception {
+		List<ServiceCategoryDTO> expectedFoundList =  
+				List.of(new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST.getCode()),
+					new ServiceCategoryDTO("Criação de Conta de Email", SERVICE_REQUEST.getCode()));
+		
+		when(categoryService.findAll()).thenReturn(expectedFoundList);
+		
+		mockMvc.perform(get("/categorias")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk())
+		.andExpect(jsonPath("$[0].name", is("Criação de Funcionalidade")))
+		.andExpect(jsonPath("$[0].categoryType", is(1)));
+		
 	}
 }

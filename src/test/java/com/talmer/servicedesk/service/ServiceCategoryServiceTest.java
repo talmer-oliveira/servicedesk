@@ -1,13 +1,16 @@
 package com.talmer.servicedesk.service;
 
 import static com.talmer.servicedesk.domain.enums.ServiceCategoryType.SERVICE_REQUEST;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,8 +43,8 @@ public class ServiceCategoryServiceTest {
 		
 		ServiceCategory savedCategory = service.createCategory(expectedCategoryDTO);
 		
-		assertThat(savedCategory.getName(), is(CoreMatchers.equalTo(expectedCategoryDTO.getName())));
-		assertThat(savedCategory.getCategoryType(), is(CoreMatchers.equalTo(expectedCategoryDTO.getCategoryType())));
+		assertThat(savedCategory.getName(), is(equalTo(expectedSavedCategory.getName())));
+		assertThat(savedCategory.getCategoryType(), is(equalTo(expectedSavedCategory.getCategoryType())));
 	}
 	
 	@Test
@@ -53,5 +56,20 @@ public class ServiceCategoryServiceTest {
 		when(repository.findByName(expectedCategoryDTO.getName())).thenReturn(Optional.of(duplicatedSavedCategory));
 		
 		Assertions.assertThrows(ServiceCategoryAlreadyRegisteredException.class, () -> service.createCategory(expectedCategoryDTO));
+	}
+	
+	@Test
+	public void whenFindAllIsCalledThenReturnAListOfServiceCategories() {
+		List<ServiceCategory> expectedFoundList =  
+						List.of(new ServiceCategory("Criação de Funcionalidade", SERVICE_REQUEST),
+							new ServiceCategory("Criação de Conta de Email", SERVICE_REQUEST));
+		
+		when(repository.findAll()).thenReturn(expectedFoundList);
+		
+		List<ServiceCategoryDTO> expectedReturnedList = service.findAll();
+		
+		assertThat(expectedReturnedList, is(not(empty())));
+		assertThat(expectedReturnedList.get(0).getName(), is(equalTo("Criação de Funcionalidade")));
+		assertThat(expectedReturnedList.get(1).getName(), is(equalTo("Criação de Conta de Email")));
 	}
 }

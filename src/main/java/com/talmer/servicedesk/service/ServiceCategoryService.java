@@ -1,6 +1,8 @@
 package com.talmer.servicedesk.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,13 @@ public class ServiceCategoryService {
 		ServiceCategory serviceCategory = fromDTO(categoryDTO);
 		ServiceCategory savedCategory = repository.save(serviceCategory);
 		return savedCategory;
+	}
+	
+	public List<ServiceCategoryDTO> findAll(){
+		return repository.findAll()
+						.stream()
+						.map(cat -> new ServiceCategoryDTO(cat.getName(), cat.getCategoryType().getCode()))
+						.collect(Collectors.toList());
 	}
 	
 	private void verityIfExists(String name) throws ServiceCategoryAlreadyRegisteredException {
