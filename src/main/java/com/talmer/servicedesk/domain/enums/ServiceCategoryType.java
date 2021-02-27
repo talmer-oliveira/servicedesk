@@ -21,6 +21,10 @@ public enum ServiceCategoryType {
 		return description;
 	}
 	
+	public Integer toValue() {
+		return getCode();
+	}
+	
 	public static ServiceCategoryType toEnum(Integer code) {
 		if(code == null) {
 			return null;
@@ -31,5 +35,10 @@ public enum ServiceCategoryType {
 			}
 		}
 		throw new IllegalArgumentException("Código inválido: " + code);
+	}
+	
+	public static ServiceCategoryType fromStringCode(String code) {
+		System.out.println(code);
+		return toEnum(Integer.parseInt(code));
 	}
 }

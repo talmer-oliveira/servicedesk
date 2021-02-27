@@ -23,6 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.talmer.servicedesk.domain.ServiceCategory;
 import com.talmer.servicedesk.dto.ServiceCategoryDTO;
@@ -42,6 +46,20 @@ public class ServiceCategoryResourceTest {
 	
 	private Gson gson;
 	
+	public static String asJsonString(Object bookDTO) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+            objectMapper.configure(SerializationFeature.WRITE_ENUMS_USING_INDEX, false);
+            objectMapper.registerModules(new JavaTimeModule());
+
+            return objectMapper.writeValueAsString(bookDTO);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+	
 	@BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(categoryResource)
@@ -53,14 +71,14 @@ public class ServiceCategoryResourceTest {
 	
 	@Test
 	public void whenPOSTIsCalledThenAServiceCategoryShouldBeCreated() throws Exception {
-		ServiceCategoryDTO serviceCategoryDTO = new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST.getCode());
+		ServiceCategoryDTO serviceCategoryDTO = new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST);
 		ServiceCategory serviceCategory = new ServiceCategory("Criação de Funcionalidade", SERVICE_REQUEST);
 		serviceCategory.setId("602d559c7c13bf5fd1894216");
 		
 		when(categoryService.createCategory(serviceCategoryDTO)).thenReturn(serviceCategory);
 		mockMvc.perform(post("/categorias")
 						.contentType(MediaType.APPLICATION_JSON)
-						.content(gson.toJson(serviceCategoryDTO)))
+						.content(asJsonString(serviceCategoryDTO)))
 				.andExpect(status().isCreated())
 				.andExpect(header().exists("Location"));
 	}
@@ -68,22 +86,22 @@ public class ServiceCategoryResourceTest {
 	@Test
 	public void whenPOSTIsCalledWithAlreadRegisteredCategoryThenAnErrorIsReturned() throws Exception {
 		ServiceCategoryDTO alreadyRegisteredCategoryDTO = 
-								new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST.getCode());
+								new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST);
 		
 		when(categoryService.createCategory(alreadyRegisteredCategoryDTO))
 			.thenThrow(ServiceCategoryAlreadyRegisteredException.class);
-		
+		System.out.println(gson.toJson(alreadyRegisteredCategoryDTO));
 		mockMvc.perform(post("/categorias")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(gson.toJson(alreadyRegisteredCategoryDTO)))
+				.content(asJsonString(alreadyRegisteredCategoryDTO)))
 				.andExpect(status().isForbidden());
 	}
 	
 	@Test
 	public void whenGETListOfServiceCategoryIsCalledThenOKStatusIsReturned() throws Exception {
 		List<ServiceCategoryDTO> expectedFoundList =  
-				List.of(new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST.getCode()),
-					new ServiceCategoryDTO("Criação de Conta de Email", SERVICE_REQUEST.getCode()));
+				List.of(new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST),
+					new ServiceCategoryDTO("Criação de Conta de Email", SERVICE_REQUEST));
 		
 		when(categoryService.findAll()).thenReturn(expectedFoundList);
 		

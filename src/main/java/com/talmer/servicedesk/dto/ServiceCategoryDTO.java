@@ -2,29 +2,38 @@ package com.talmer.servicedesk.dto;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.talmer.servicedesk.domain.enums.ServiceCategoryType;
 
 public class ServiceCategoryDTO implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
-	@NotEmpty
-	@Size(min = 1, max = 60)
+	@JsonProperty(access = Access.READ_ONLY)
+	private String id;
+	
+	@NotNull(message = "Não pode ser nulo")
+	@Size(min = 1, max = 60, message = "Deve ter entre 1 e 60 caracteres")
 	private String name;
 	
-	@NotNull
-	private Integer categoryType;
+	private ServiceCategoryType categoryType;
 	
 	public ServiceCategoryDTO() {}
 
-	public ServiceCategoryDTO(String name, Integer categoryType) {
+	public ServiceCategoryDTO(String name, ServiceCategoryType categoryType) {
 		super();
 		this.name = name;
 		this.categoryType = categoryType;
 	}
 
+	public String getId() {
+		return id;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -34,11 +43,11 @@ public class ServiceCategoryDTO implements Serializable{
 	}
 
 	public Integer getCategoryType() {
-		return categoryType;
+		return categoryType.getCode();
 	}
 
 	public void setCategoryType(Integer categoryType) {
-		this.categoryType = categoryType;
+		this.categoryType = ServiceCategoryType.toEnum(categoryType);
 	}
 
 	@Override

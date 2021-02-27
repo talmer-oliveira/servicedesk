@@ -29,14 +29,14 @@ public class ServiceCategoryResource {
 	private ServiceCategoryService categoryService;
 	
 	@RequestMapping(method = POST)
-	public ResponseEntity<Void> createCategory(@Valid @RequestBody ServiceCategoryDTO categoryDTO){
+	public ResponseEntity<String> createCategory(@Valid @RequestBody ServiceCategoryDTO categoryDTO){
 		try {
 			ServiceCategory serviceCategory  = categoryService.createCategory(categoryDTO);
 			URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
 					.path("/{id}").buildAndExpand(serviceCategory.getId()).toUri();
 			return ResponseEntity.created(uri).build();
 		} catch (ServiceCategoryAlreadyRegisteredException e) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
 		}
 	}
 	

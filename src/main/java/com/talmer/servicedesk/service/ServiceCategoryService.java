@@ -29,7 +29,7 @@ public class ServiceCategoryService {
 	public List<ServiceCategoryDTO> findAll(){
 		return repository.findAll()
 						.stream()
-						.map(cat -> new ServiceCategoryDTO(cat.getName(), cat.getCategoryType().getCode()))
+						.map(cat -> new ServiceCategoryDTO(cat.getName(), cat.getCategoryType()))
 						.collect(Collectors.toList());
 	}
 	
@@ -41,10 +41,10 @@ public class ServiceCategoryService {
 	}
 	
 	public ServiceCategory fromDTO(ServiceCategoryDTO categoryDTO) {
-		return new ServiceCategory(categoryDTO.getName(), ServiceCategoryType.toEnum(categoryDTO.getCategoryType()));
+		return new ServiceCategory(categoryDTO.getName(),ServiceCategoryType.toEnum(categoryDTO.getCategoryType()));
 	}
 	
 	public ServiceCategoryDTO toDTO(ServiceCategory serviceCategory) {
-		return new ServiceCategoryDTO(serviceCategory.getName(), serviceCategory.getCategoryType().getCode());
+		return new ServiceCategoryDTO(serviceCategory.getName(), serviceCategory.getCategoryType());
 	}
 }
