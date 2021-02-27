@@ -19,8 +19,7 @@ public class ResourceExceptionHandler {
 		for (FieldError x : e.getBindingResult().getFieldErrors()) {
 			error.addFieldError(x.getField(), x.getDefaultMessage());
 		}		
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
+		return ResponseEntity.unprocessableEntity().body(error);
 	}
-	
 
 }

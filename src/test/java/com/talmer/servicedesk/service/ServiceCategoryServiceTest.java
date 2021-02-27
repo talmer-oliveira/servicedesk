@@ -35,7 +35,7 @@ public class ServiceCategoryServiceTest {
 	@Test
 	public void whenServiceCategoryIsInformedThenItShouldBeCreated() throws ServiceCategoryAlreadyRegisteredException {
 		ServiceCategoryDTO expectedCategoryDTO = 
-				new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST);
+				new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST.getCode());
 		ServiceCategory expectedSavedCategory = new ServiceCategory("Criação de Funcionalidade", SERVICE_REQUEST);
 		
 		when(repository.findByName(expectedCategoryDTO.getName())).thenReturn(Optional.empty());
@@ -50,7 +50,7 @@ public class ServiceCategoryServiceTest {
 	@Test
 	public void whenAlreadyRegisteredServiceCategoryIsInformedThenAnExceptionShouldBeThrown(){
 		ServiceCategoryDTO expectedCategoryDTO = 
-				new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST);
+				new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST.getCode());
 		ServiceCategory duplicatedSavedCategory = new ServiceCategory("Criação de Funcionalidade", SERVICE_REQUEST);
 		
 		when(repository.findByName(expectedCategoryDTO.getName())).thenReturn(Optional.of(duplicatedSavedCategory));

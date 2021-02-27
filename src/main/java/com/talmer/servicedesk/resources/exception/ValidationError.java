@@ -11,17 +11,17 @@ public class ValidationError implements Serializable {
 	private Integer status;
 	private String error;
 	
-	private List<FieldErrorMessage> fieldsMessages;
+	private List<FieldErrorMessage> errorMessages;
 
 	public ValidationError(Integer status, String error) {
 		super();
 		this.status = status;
 		this.error = error;
-		fieldsMessages = new ArrayList<>();
+		errorMessages = new ArrayList<>();
 	}
 
 	public void addFieldError(String field, String messsage) {
-		fieldsMessages.add(new FieldErrorMessage(field, messsage));
+		errorMessages.add(new FieldErrorMessage(field, messsage));
 	}
 	
 	public Integer getStatus() {
@@ -40,8 +40,8 @@ public class ValidationError implements Serializable {
 		this.error = error;
 	}
 
-	public List<FieldErrorMessage> getFieldsMessages() {
-		return fieldsMessages;
+	public List<FieldErrorMessage> getErrorMessages() {
+		return errorMessages;
 	}
 
 }

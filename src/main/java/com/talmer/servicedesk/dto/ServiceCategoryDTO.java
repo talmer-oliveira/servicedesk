@@ -7,8 +7,9 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.talmer.servicedesk.domain.enums.ServiceCategoryType;
+import com.talmer.servicedesk.validation.ValidCategoryType;
 
+@ValidCategoryType
 public class ServiceCategoryDTO implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -20,11 +21,11 @@ public class ServiceCategoryDTO implements Serializable{
 	@Size(min = 1, max = 60, message = "Deve ter entre 1 e 60 caracteres")
 	private String name;
 	
-	private ServiceCategoryType categoryType;
+	private Integer categoryType;
 	
 	public ServiceCategoryDTO() {}
 
-	public ServiceCategoryDTO(String name, ServiceCategoryType categoryType) {
+	public ServiceCategoryDTO(String name, Integer categoryType) {
 		super();
 		this.name = name;
 		this.categoryType = categoryType;
@@ -41,13 +42,13 @@ public class ServiceCategoryDTO implements Serializable{
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
 	public Integer getCategoryType() {
-		return categoryType.getCode();
+		return categoryType;
 	}
-
+	
 	public void setCategoryType(Integer categoryType) {
-		this.categoryType = ServiceCategoryType.toEnum(categoryType);
+		this.categoryType = categoryType;
 	}
 
 	@Override
@@ -80,5 +81,4 @@ public class ServiceCategoryDTO implements Serializable{
 			return false;
 		return true;
 	}
-	
 }
