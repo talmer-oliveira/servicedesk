@@ -20,7 +20,7 @@ public class ServiceCategoryService {
 	private ServiceCategoryRepository repository;
 	
 	public ServiceCategory createCategory(ServiceCategoryDTO categoryDTO) throws ServiceCategoryAlreadyRegisteredException {
-		verityIfExists(categoryDTO.getName());
+		verifyIfExists(categoryDTO.getName());
 		ServiceCategory serviceCategory = fromDTO(categoryDTO);
 		ServiceCategory savedCategory = repository.save(serviceCategory);
 		return savedCategory;
@@ -33,7 +33,7 @@ public class ServiceCategoryService {
 						.collect(Collectors.toList());
 	}
 	
-	private void verityIfExists(String name) throws ServiceCategoryAlreadyRegisteredException {
+	private void verifyIfExists(String name) throws ServiceCategoryAlreadyRegisteredException {
 		Optional<ServiceCategory> optSavedCategory = repository.findByName(name);
 		if(optSavedCategory.isPresent()) {
 			throw new ServiceCategoryAlreadyRegisteredException(name);
