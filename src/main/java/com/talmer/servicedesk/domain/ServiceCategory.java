@@ -24,7 +24,7 @@ public class ServiceCategory implements Serializable{
 	public ServiceCategory(String name, ServiceCategoryType categoryType) {
 		super();
 		this.name = name;
-		setCategoryType(categoryType);;
+		setCategoryType(categoryType);
 	}
 
 	public String getId() {
