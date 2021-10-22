@@ -16,18 +16,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.google.gson.Gson;
-import com.talmer.servicedesk.domain.Person;
-import com.talmer.servicedesk.dto.PersonDTO;
-import com.talmer.servicedesk.service.PersonService;
+import com.talmer.servicedesk.domain.User;
+import com.talmer.servicedesk.dto.UserDTO;
+import com.talmer.servicedesk.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
-public class PersonResourceTest {
+public class UserResourceTest {
 
 	@Mock
-	private PersonService personService;
+	private UserService userService;
 	
 	@InjectMocks
-	private PersonResource personResource;
+	private UserResource userResource;
 	
 	private MockMvc mockMvc;
 	
@@ -35,7 +35,7 @@ public class PersonResourceTest {
 	
 	@BeforeEach
 	void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(personResource)
+        mockMvc = MockMvcBuilders.standaloneSetup(userResource)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .setViewResolvers((s, locale) -> new MappingJackson2JsonView())
                 .build();
@@ -44,11 +44,11 @@ public class PersonResourceTest {
 	
 	@Test
 	public void whenPOSTIsCalledThenAPersonShouldBeRegistered() throws Exception {
-		PersonDTO expectedPersonDTO = new PersonDTO("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
-		Person expectedSavedPerson = new Person("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
+		UserDTO expectedPersonDTO = new UserDTO("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
+		User expectedSavedPerson = new User("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
 		
-		Mockito.when(personService.insertPerson(Mockito.any(PersonDTO.class))).thenAnswer(invocationOnMock -> {
-	        if (invocationOnMock.getArguments()[0] instanceof PersonDTO) {
+		Mockito.when(userService.insertUser(Mockito.any(UserDTO.class))).thenAnswer(invocationOnMock -> {
+	        if (invocationOnMock.getArguments()[0] instanceof UserDTO) {
 	            return expectedSavedPerson;
 	        }
 	        return null;

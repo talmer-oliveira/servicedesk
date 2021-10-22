@@ -5,10 +5,10 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.talmer.servicedesk.domain.Person;
+import com.talmer.servicedesk.domain.User;
 
 @Repository
-public interface PersonRepository extends MongoRepository<Person, String> {
+public interface UserRepository extends MongoRepository<User, String> {
 
-	Optional<Person> findByEmail(String email);
+	Optional<User> findByEmail(String email);
 }

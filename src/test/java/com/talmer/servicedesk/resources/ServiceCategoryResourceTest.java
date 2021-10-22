@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,8 +84,8 @@ public class ServiceCategoryResourceTest {
 	@Test
 	public void whenGETListOfServiceCategoryIsCalledThenOKStatusIsReturned() throws Exception {
 		List<ServiceCategoryDTO> expectedFoundList =  
-				List.of(new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST.getCode()),
-					new ServiceCategoryDTO("Criação de Conta de Email", SERVICE_REQUEST.getCode()));
+				Stream.of(new ServiceCategoryDTO("Criação de Funcionalidade", SERVICE_REQUEST.getCode()),
+					new ServiceCategoryDTO("Criação de Conta de Email", SERVICE_REQUEST.getCode())).collect(Collectors.toList());
 		
 		when(categoryService.findAll()).thenReturn(expectedFoundList);
 		

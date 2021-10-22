@@ -14,26 +14,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.talmer.servicedesk.domain.Person;
-import com.talmer.servicedesk.dto.PersonDTO;
-import com.talmer.servicedesk.service.PersonService;
-import com.talmer.servicedesk.service.exception.PersonEmailAlreadyRegisteredException;
+import com.talmer.servicedesk.domain.User;
+import com.talmer.servicedesk.dto.UserDTO;
+import com.talmer.servicedesk.service.UserService;
+import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
 
 @RestController
 @RequestMapping(value="/usuarios")
-public class PersonResource {
+public class UserResource {
 
 	@Autowired
-	private PersonService personService;
+	private UserService userService;
 	
 	@RequestMapping(method = POST)
-	public ResponseEntity<String> insertPerson(@Valid @RequestBody PersonDTO personDTO){
+	public ResponseEntity<String> insertPerson(@Valid @RequestBody UserDTO userDTO){
 		try {
-			Person person = personService.insertPerson(personDTO);
+			User user = userService.insertPerson(userDTO);
 			URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-							.path("/{id}").buildAndExpand(person.getId()).toUri();
+							.path("/{id}").buildAndExpand(user.getId()).toUri();
 			return ResponseEntity.created(uri).build();
-		} catch (PersonEmailAlreadyRegisteredException e) {
+		} catch (UserEmailAlreadyRegisteredException e) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
 		}
 	}

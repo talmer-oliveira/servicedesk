@@ -1,10 +1,10 @@
 package com.talmer.servicedesk.service.exception;
 
-public class PersonNotFoundException extends Exception {
+public class UserNotFoundException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public PersonNotFoundException(String email) {
+	public UserNotFoundException(String email) {
 		super(String.format("Usuário não encontrado para o email ", email));
 	}
 

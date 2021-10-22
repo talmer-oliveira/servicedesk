@@ -7,23 +7,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import com.talmer.servicedesk.domain.Person;
-import com.talmer.servicedesk.repository.PersonRepository;
-import com.talmer.servicedesk.security.User;
+import com.talmer.servicedesk.domain.User;
+import com.talmer.servicedesk.repository.UserRepository;
+import com.talmer.servicedesk.security.AuthUser;
 
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
-	private PersonRepository personRepository;
+	private UserRepository personRepository;
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<Person> optional = personRepository.findByEmail(username);
-		if(optional.isEmpty()) {
+		Optional<User> optional = personRepository.findByEmail(username);
+		if(!optional.isPresent()) {
 			throw new UsernameNotFoundException(String.format("Usuário não encontrado para o email", username));
 		}
-		Person person = optional.get();
-		return new User(person.getId(), person.getEmail(), person.getPassword(), false, person.getRoles());
+		User person = optional.get();
+		return new AuthUser(person.getId(), person.getEmail(), person.getPassword(), false, person.getRoles());
 	}
 
 }

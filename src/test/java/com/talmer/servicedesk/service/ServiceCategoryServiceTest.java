@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -61,8 +63,8 @@ public class ServiceCategoryServiceTest {
 	@Test
 	public void whenFindAllIsCalledThenReturnAListOfServiceCategories() {
 		List<ServiceCategory> expectedFoundList =  
-						List.of(new ServiceCategory("Criação de Funcionalidade", SERVICE_REQUEST),
-							new ServiceCategory("Criação de Conta de Email", SERVICE_REQUEST));
+						Stream.of(new ServiceCategory("Criação de Funcionalidade", SERVICE_REQUEST),
+							new ServiceCategory("Criação de Conta de Email", SERVICE_REQUEST)).collect(Collectors.toList());
 		
 		when(repository.findAll()).thenReturn(expectedFoundList);
 		
