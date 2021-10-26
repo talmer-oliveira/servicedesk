@@ -47,7 +47,7 @@ public class UserResourceTest {
 		UserDTO expectedPersonDTO = new UserDTO("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
 		User expectedSavedPerson = new User("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
 		
-		Mockito.when(userService.insertUser(Mockito.any(UserDTO.class))).thenAnswer(invocationOnMock -> {
+		Mockito.when(userService.createUser(Mockito.any(UserDTO.class))).thenAnswer(invocationOnMock -> {
 	        if (invocationOnMock.getArguments()[0] instanceof UserDTO) {
 	            return expectedSavedPerson;
 	        }

@@ -38,7 +38,7 @@ public class UserServiceTest {
 		when(userRepository.findByEmail(expectedUserDTO.getEmail())).thenReturn(Optional.empty());
 		when(userRepository.save(expectedSavedPerson)).thenReturn(expectedSavedPerson);
 		
-		User savedPerson = userService.insertUser(expectedUserDTO);
+		User savedPerson = userService.createUser(expectedUserDTO);
 		
 		assertThat(savedPerson.getEmail(), is(equalTo(expectedSavedPerson.getEmail())));
 		assertThat(savedPerson.getName(), is(equalTo(expectedSavedPerson.getName())));
@@ -54,7 +54,7 @@ public class UserServiceTest {
 		
 		when(userRepository.findByEmail(expectedUserDTO.getEmail())).thenReturn(Optional.of(alreadyRegisteredUser));
 		
-		Assertions.assertThrows(UserEmailAlreadyRegisteredException.class, () -> userService.insertUser(expectedUserDTO));
+		Assertions.assertThrows(UserEmailAlreadyRegisteredException.class, () -> userService.createUser(expectedUserDTO));
 	}
 
 }

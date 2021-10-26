@@ -27,9 +27,9 @@ public class UserResource {
 	private UserService userService;
 	
 	@RequestMapping(method = POST)
-	public ResponseEntity<String> insertPerson(@Valid @RequestBody UserDTO userDTO){
+	public ResponseEntity<String> createUser(@Valid @RequestBody UserDTO userDTO){
 		try {
-			User user = userService.insertPerson(userDTO);
+			User user = userService.createUser(userDTO);
 			URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
 							.path("/{id}").buildAndExpand(user.getId()).toUri();
 			return ResponseEntity.created(uri).build();

@@ -16,7 +16,7 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 	
-	public User insertUser(UserDTO userDTO) throws UserEmailAlreadyRegisteredException {
+	public User createUser(UserDTO userDTO) throws UserEmailAlreadyRegisteredException {
 		verifyIfExists(userDTO.getEmail());
 		User user = fromDTO(userDTO);
 		User persistedUser = userRepository.save(user);

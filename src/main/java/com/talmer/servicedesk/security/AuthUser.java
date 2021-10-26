@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.talmer.servicedesk.domain.enums.Role;
 
-public class User implements UserDetails{
+public class AuthUser implements UserDetails{
 
 	private static final long serialVersionUID = 1L;
 
@@ -24,7 +24,7 @@ public class User implements UserDetails{
 	
 	private Collection<? extends GrantedAuthority> authorities;
 	
-	public User(String id, String email, String password, Boolean active, Set<Role> roles) {
+	public AuthUser(String id, String email, String password, Boolean active, Set<Role> roles) {
 		super();
 		this.id = id;
 		this.email = email;

@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.talmer.servicedesk.domain.enums.Role;
 
 @Document(collection = "user")
-public class Person implements Serializable{
+public class User implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
@@ -29,11 +29,11 @@ public class Person implements Serializable{
 
 	private Boolean active;
 	
-	public Person() {
+	public User() {
 		addRole(Role.USER);
 	}
 
-	public Person(String email, String name, String cpf, String password) {
+	public User(String email, String name, String cpf, String password) {
 		super();
 		this.email = email;
 		this.name = name;
@@ -115,7 +115,7 @@ public class Person implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Person other = (Person) obj;
+		User other = (User) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
