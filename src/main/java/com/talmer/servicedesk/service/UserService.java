@@ -3,6 +3,7 @@ package com.talmer.servicedesk.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.talmer.servicedesk.domain.User;
@@ -16,9 +17,13 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+
 	public User createUser(UserDTO userDTO) throws UserEmailAlreadyRegisteredException {
 		verifyIfExists(userDTO.getEmail());
 		User user = fromDTO(userDTO);
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		User persistedUser = userRepository.save(user);
 		return persistedUser;
 	}

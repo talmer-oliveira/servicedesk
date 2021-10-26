@@ -3,17 +3,10 @@ package com.talmer.servicedesk.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.talmer.servicedesk.domain.User;
 import com.talmer.servicedesk.domain.enums.Role;
@@ -21,12 +14,25 @@ import com.talmer.servicedesk.dto.UserDTO;
 import com.talmer.servicedesk.repository.UserRepository;
 import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
 
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
 	@Mock
 	private UserRepository userRepository;
 	
+	@Spy
+	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
 	@InjectMocks
 	private UserService userService;
 	
@@ -37,7 +43,8 @@ public class UserServiceTest {
 		
 		when(userRepository.findByEmail(expectedUserDTO.getEmail())).thenReturn(Optional.empty());
 		when(userRepository.save(expectedSavedPerson)).thenReturn(expectedSavedPerson);
-		
+		doReturn(passwordEncoder.encode(expectedUserDTO.getPassword())).when(passwordEncoder).encode(expectedUserDTO.getPassword());
+
 		User savedPerson = userService.createUser(expectedUserDTO);
 		
 		assertThat(savedPerson.getEmail(), is(equalTo(expectedSavedPerson.getEmail())));
@@ -45,6 +52,7 @@ public class UserServiceTest {
 		assertThat(savedPerson.getActive(), is(equalTo(Boolean.FALSE)));
 		assertThat(savedPerson.getRoles().size(), is(equalTo(1)));
 		assertThat(savedPerson.getRoles(), Matchers.contains(Role.USER));
+
 	}
 	
 	@Test
