@@ -1,5 +1,7 @@
 package com.talmer.servicedesk.resources.exception;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,15 @@ public class ResourceExceptionHandler {
 			error.addFieldError(x.getField(), x.getDefaultMessage());
 		}		
 		return ResponseEntity.unprocessableEntity().body(error);
+	}
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<StandardResponseError> handleGenericException(Exception e, HttpServletRequest request){
+		StandardResponseError error = 
+					new StandardResponseError(
+									System.currentTimeMillis(), INTERNAL_SERVER_ERROR.value(), "Erro no servidor", e.getMessage()
+									,request.getRequestURI());
+		return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(error);
 	}
 
 }
