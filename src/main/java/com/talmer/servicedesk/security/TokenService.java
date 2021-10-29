@@ -20,6 +20,8 @@ public class TokenService {
         this.signingKey = signingKey;
     }
 
+    public TokenService(){}
+
     public String createToken(String username, Long secondsToExpire){
         return Jwts.builder()
                 .setSubject(username)

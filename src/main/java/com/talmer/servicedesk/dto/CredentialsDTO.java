@@ -9,12 +9,6 @@ public class CredentialsDTO {
 	
 	private String password;
 
-	public CredentialsDTO(@Email(message = "Email inválido") String email, String password) {
-		super();
-		this.email = email;
-		this.password = password;
-	}
-
 	public String getEmail() {
 		return email;
 	}
