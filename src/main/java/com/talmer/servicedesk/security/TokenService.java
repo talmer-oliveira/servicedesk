@@ -4,11 +4,18 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+import com.talmer.servicedesk.security.exception.InvalidTokenException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 
 @Component
 public class TokenService {
@@ -28,5 +35,28 @@ public class TokenService {
                 .setExpiration(Date.from(LocalDateTime.now().plusSeconds(secondsToExpire).atZone(ZoneId.systemDefault()).toInstant()))
                 .signWith(SignatureAlgorithm.HS512, signingKey.getBytes())
                 .compact();
+    }
+
+    public String getUsername(String token) throws InvalidTokenException{
+        Claims claims = fromToken(token);
+        return claims.getSubject();
+    }
+
+    public boolean isTokenValid(String token){
+        try {
+            fromToken(token);
+            return true;
+        } catch (InvalidTokenException e) {
+            return false;
+        }
+    }
+
+    private Claims fromToken(String token) throws InvalidTokenException{
+        try {
+            return Jwts.parser().setSigningKey(signingKey.getBytes()).parseClaimsJws(token).getBody();
+        } catch (SignatureException | UnsupportedJwtException | MalformedJwtException | IllegalArgumentException | ExpiredJwtException e) {
+            throw new InvalidTokenException(e.getMessage());
+        }
+        
     }
 }

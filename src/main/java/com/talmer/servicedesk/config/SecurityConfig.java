@@ -3,6 +3,7 @@ package com.talmer.servicedesk.config;
 import java.util.Arrays;
 
 import com.talmer.servicedesk.security.AuthenticationFilter;
+import com.talmer.servicedesk.security.AuthorizationFilter;
 import com.talmer.servicedesk.security.TokenService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-public class SecuriryConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private UserDetailsService userDetailsService;
@@ -37,6 +38,7 @@ public class SecuriryConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers(HttpMethod.POST, "/usuarios/**").permitAll()
 			.anyRequest().authenticated();
 		http.addFilter(new AuthenticationFilter(authenticationManager(), tokenService));
+		http.addFilter(new AuthorizationFilter(authenticationManager(), tokenService, userDetailsService));
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
 
