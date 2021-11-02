@@ -1,11 +1,13 @@
 package com.talmer.servicedesk.resources.exception;
 
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -33,4 +35,12 @@ public class ResourceExceptionHandler {
 		return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(error);
 	}
 
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<StandardResponseError> handleAccessDeniedException(AccessDeniedException e, HttpServletRequest request){
+		StandardResponseError error = 
+				new StandardResponseError(
+								System.currentTimeMillis(), FORBIDDEN.value(), "Forbidden", e.getMessage()
+								,request.getRequestURI());
+		return ResponseEntity.status(FORBIDDEN).body(error);
+	}
 }

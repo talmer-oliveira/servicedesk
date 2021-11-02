@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +30,7 @@ public class ServiceCategoryResource {
 	private ServiceCategoryService categoryService;
 	
 	@RequestMapping(method = POST)
+	@PreAuthorize("hasAnyRole('ADMIN','DEV')")
 	public ResponseEntity<String> createCategory(@Valid @RequestBody ServiceCategoryDTO categoryDTO){
 		try {
 			ServiceCategory serviceCategory  = categoryService.createCategory(categoryDTO);
