@@ -33,6 +33,10 @@ public class AuthUser implements UserDetails{
 		authorities = roles.stream().map(r -> new SimpleGrantedAuthority(r.getDescription())).collect(Collectors.toList());
 	}
 
+	public boolean hasRole(Role role) {
+		return authorities.contains(new SimpleGrantedAuthority(role.getDescription()));
+	}
+	
 	public String getId() {
 		return id;
 	}

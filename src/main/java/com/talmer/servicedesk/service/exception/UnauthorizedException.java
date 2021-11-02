@@ -1,11 +1,10 @@
 package com.talmer.servicedesk.service.exception;
 
-public class UserNotFoundException extends Exception {
+public class UnauthorizedException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public UserNotFoundException(String message) {
+	public UnauthorizedException(String message) {
 		super(message);
 	}
-
 }

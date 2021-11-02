@@ -7,9 +7,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.talmer.servicedesk.domain.User;
+import com.talmer.servicedesk.domain.enums.Role;
 import com.talmer.servicedesk.dto.UserDTO;
 import com.talmer.servicedesk.repository.UserRepository;
+import com.talmer.servicedesk.security.AuthUser;
+import com.talmer.servicedesk.service.exception.UnauthorizedException;
 import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
+import com.talmer.servicedesk.service.exception.UserNotFoundException;
 
 @Service
 public class UserService {
@@ -19,6 +23,33 @@ public class UserService {
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
+
+	@Autowired
+	private UserDetailsServiceImpl userDetailsServiceImpl;
+	
+	public UserDTO findById(String id) throws UserNotFoundException, UnauthorizedException {
+		AuthUser authenticated = userDetailsServiceImpl.authenticated();
+		if(id == null || !authenticated.getId().equals(id) && !authenticated.hasRole(Role.ADMIN)) {
+			throw new UnauthorizedException("Você não tem permissão para acessar esse recurso");
+		}
+		Optional<User> user = userRepository.findById(id);
+		if(user.isPresent()) {
+			return toDTO(user.get());
+		}
+		throw new UserNotFoundException("Usuário não encontrado: " + id);
+	}
+	
+	public UserDTO findByEmail(String email) throws UserNotFoundException, UnauthorizedException {
+		AuthUser authenticated = userDetailsServiceImpl.authenticated();
+		if(email == null || !authenticated.getUsername().equals(email) && !authenticated.hasRole(Role.ADMIN)) {
+			throw new UnauthorizedException("Você não tem permissão para acessar esse recurso");
+		}
+		Optional<User> user = userRepository.findByEmail(email);
+		if(user.isPresent()) {
+			return toDTO(user.get());
+		}
+		throw new UserNotFoundException("Usuário não encontrado: " + email);
+	}
 
 	public User createUser(UserDTO userDTO) throws UserEmailAlreadyRegisteredException {
 		verifyIfExists(userDTO.getEmail());
@@ -33,6 +64,14 @@ public class UserService {
 		if(user.isPresent()) {
 			throw new UserEmailAlreadyRegisteredException(email);
 		}
+	}
+	
+	private UserDTO toDTO(User user) {
+		UserDTO userDTO = new UserDTO();
+		userDTO.setCpf(user.getCpf());
+		userDTO.setEmail(user.getEmail());
+		userDTO.setName(user.getName());
+		return userDTO;
 	}
 	
 	private User fromDTO(UserDTO userDTO) {

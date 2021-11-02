@@ -9,10 +9,12 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.talmer.servicedesk.domain.User;
 
 public class UserDTO {
 
+	@JsonProperty(access = Access.READ_ONLY)
+	private String id;
+	
 	@Email(message = "Email com formato inválido")
 	@NotNull(message= "Preenchimento obrigatório")
 	private String email;
@@ -37,13 +39,6 @@ public class UserDTO {
 		this.name = name;
 		this.cpf = cpf;
 		this.password = password;
-	}
-
-	public UserDTO(User person) {
-		this.email = person.getEmail();
-		this.name = person.getName();
-		this.cpf = person.getCpf();
-		this.password = person.getPassword();
 	}
 
 	public String getEmail() {
@@ -77,5 +72,12 @@ public class UserDTO {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 }

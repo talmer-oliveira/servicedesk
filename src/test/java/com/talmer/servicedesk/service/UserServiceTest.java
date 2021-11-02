@@ -3,19 +3,15 @@ package com.talmer.servicedesk.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
 import java.util.Optional;
-
-import com.talmer.servicedesk.domain.User;
-import com.talmer.servicedesk.domain.enums.Role;
-import com.talmer.servicedesk.dto.UserDTO;
-import com.talmer.servicedesk.repository.UserRepository;
-import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
+import java.util.Set;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +19,15 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import com.talmer.servicedesk.domain.User;
+import com.talmer.servicedesk.domain.enums.Role;
+import com.talmer.servicedesk.dto.UserDTO;
+import com.talmer.servicedesk.repository.UserRepository;
+import com.talmer.servicedesk.security.AuthUser;
+import com.talmer.servicedesk.service.exception.UnauthorizedException;
+import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
+import com.talmer.servicedesk.service.exception.UserNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -36,10 +41,13 @@ public class UserServiceTest {
 	@InjectMocks
 	private UserService userService;
 	
+	@Mock
+	private UserDetailsServiceImpl userDetailsServiceImpl;
+	
 	@Test
 	public void whenPersonIsInformedThenItShouldBeCreated() throws UserEmailAlreadyRegisteredException {
-		UserDTO expectedUserDTO = new UserDTO("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
-		User expectedSavedPerson = new User("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
+		UserDTO expectedUserDTO = new UserDTO("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
+		User expectedSavedPerson = new User("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
 		
 		when(userRepository.findByEmail(expectedUserDTO.getEmail())).thenReturn(Optional.empty());
 		when(userRepository.save(expectedSavedPerson)).thenReturn(expectedSavedPerson);
@@ -57,12 +65,74 @@ public class UserServiceTest {
 	
 	@Test
 	public void whenAnAlreadyRegisteredPersonIsInformedThenAnExceptionShouldBeThrown() {
-		UserDTO expectedUserDTO = new UserDTO("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
-		User alreadyRegisteredUser = new User("teste-email@tmail.com", "Test Person", "10846868644", "o7,%kdy45LL?)p0");
+		UserDTO expectedUserDTO = new UserDTO("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
+		User alreadyRegisteredUser = new User("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
 		
 		when(userRepository.findByEmail(expectedUserDTO.getEmail())).thenReturn(Optional.of(alreadyRegisteredUser));
 		
-		Assertions.assertThrows(UserEmailAlreadyRegisteredException.class, () -> userService.createUser(expectedUserDTO));
+		assertThrows(UserEmailAlreadyRegisteredException.class, () -> userService.createUser(expectedUserDTO));
 	}
 
+	@Test
+	public void whenFindByIdIsCalledByTheUserItselfThenReturnTheFoundUser() throws UserNotFoundException, UnauthorizedException {
+		UserDTO userDTO = new UserDTO("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
+		User expectedUser = new User("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
+		expectedUser.setId("sdjflkjdskfjdslfkj");
+		Set<Role> roles = new HashSet<>();
+		roles.add(Role.USER);
+		AuthUser authenticatedUser = new AuthUser("sdjflkjdskfjdslfkj", "teste-email@tmail.com", null, true, roles);
+		
+		when(userRepository.findById(expectedUser.getId())).thenReturn(Optional.of(expectedUser));
+		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		
+		UserDTO returnedUserDTO = userService.findById(expectedUser.getId());
+		
+		assertThat(returnedUserDTO.getEmail(), is(equalTo(userDTO.getEmail())));
+		assertThat(returnedUserDTO.getName(), is(equalTo(userDTO.getName())));
+	}
+	
+	@Test
+	public void whenFindByIdIsCalledByAnAdminUserThenReturnTheFoundUser() throws UserNotFoundException, UnauthorizedException {
+		UserDTO userDTO = new UserDTO("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
+		User expectedUser = new User("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
+		expectedUser.setId("sdjflkjdskfjdslfkj");
+		Set<Role> roles = new HashSet<>();
+		roles.add(Role.USER);
+		roles.add(Role.ADMIN);
+		AuthUser authenticatedUser = new AuthUser("ssssssss", "teste-email@tmail.com", null, true, roles);
+		
+		when(userRepository.findById(expectedUser.getId())).thenReturn(Optional.of(expectedUser));
+		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		
+		UserDTO returnedUserDTO = userService.findById(expectedUser.getId());
+		
+		assertThat(returnedUserDTO.getEmail(), is(equalTo(userDTO.getEmail())));
+		assertThat(returnedUserDTO.getName(), is(equalTo(userDTO.getName())));
+	}
+	
+	@Test
+	public void whenFindByIdDoNotFindAnUserThenAnExceptionShouldBeThrown() {
+		Set<Role> roles = new HashSet<>();
+		roles.add(Role.USER);
+		roles.add(Role.ADMIN);
+		AuthUser authenticatedUser = new AuthUser("ssssssss", "teste-email@tmail.com", null, true, roles);
+		
+		when(userRepository.findById("123456")).thenReturn(Optional.empty());
+		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		
+		assertThrows(UserNotFoundException.class, () -> userService.findById("123456"));
+	}
+	
+	@Test
+	public void whenUserDoNotHasPermissionToGetOtherUserDataThenAnExceptionShouldBeThrown() {
+		User expectedUser = new User("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
+		expectedUser.setId("sdjflkjdskfjdslfkj");
+		Set<Role> roles = new HashSet<>();
+		roles.add(Role.USER);
+		AuthUser authenticatedUser = new AuthUser("ssssssss", "teste-email@tmail.com", null, true, roles);
+		
+		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		
+		assertThrows(UnauthorizedException.class, () -> userService.findById(expectedUser.getId()));
+	}
 }
