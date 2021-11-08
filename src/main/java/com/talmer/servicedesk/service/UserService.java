@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service;
 import com.talmer.servicedesk.domain.User;
 import com.talmer.servicedesk.domain.enums.Role;
 import com.talmer.servicedesk.dto.UserDTO;
+import com.talmer.servicedesk.dto.UserUpdateDTO;
 import com.talmer.servicedesk.repository.UserRepository;
 import com.talmer.servicedesk.security.AuthUser;
-import com.talmer.servicedesk.service.exception.UnauthorizedException;
+import com.talmer.servicedesk.service.exception.ForbiddenException;
 import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
 import com.talmer.servicedesk.service.exception.UserNotFoundException;
 
@@ -35,22 +36,40 @@ public class UserService {
 		return persistedUser;
 	}
 	
-	public UserDTO findById(String id) throws UserNotFoundException, UnauthorizedException {
-		AuthUser authenticated = userDetailsServiceImpl.authenticated();
-		if(id == null || !authenticated.getId().equals(id) && !authenticated.hasRole(Role.ADMIN)) {
-			throw new UnauthorizedException("Você não tem permissão para acessar esse recurso");
+	public UserDTO updateUser(String id, UserUpdateDTO userUpdateDTO) {
+		checkIdAccessPermission(id);
+		Optional<User> optionalUser = userRepository.findById(id);
+		if(!optionalUser.isPresent()){
+			throw new UserNotFoundException("Usuário não encontrado: " + id);
 		}
+		Optional<User> foundByEmail = userRepository.findByEmail(userUpdateDTO.getEmail());
+		if(foundByEmail.isPresent() && !foundByEmail.get().getId().equals(id)) {
+			throw new ForbiddenException("Email já cadastrado.");
+		}
+		User userToUpdate = updateFromDTO(userUpdateDTO, optionalUser.get());
+		return toDTO(userRepository.save(userToUpdate));
+	}
+	
+	public UserDTO findById(String id){
+		checkIdAccessPermission(id);
 		Optional<User> user = userRepository.findById(id);
 		return instantiateIfIsUserPresent(user, id);
 	}
 	
-	public UserDTO findByEmail(String email) throws UserNotFoundException, UnauthorizedException {
+	public UserDTO findByEmail(String email){
 		AuthUser authenticated = userDetailsServiceImpl.authenticated();
 		if(email == null || !authenticated.getUsername().equals(email) && !authenticated.hasRole(Role.ADMIN)) {
-			throw new UnauthorizedException("Você não tem permissão para acessar esse recurso");
+			throw new ForbiddenException("Você não tem permissão para acessar esse recurso");
 		}
 		Optional<User> user = userRepository.findByEmail(email);
 		return instantiateIfIsUserPresent(user, email);
+	}
+	
+	private void checkIdAccessPermission(String id) {
+		AuthUser authenticated = userDetailsServiceImpl.authenticated();
+		if(id == null || !authenticated.getId().equals(id) && !authenticated.hasRole(Role.ADMIN)) {
+			throw new ForbiddenException("Você não tem permissão para acessar esse recurso");
+		}
 	}
 	
 	private void verifyIfExists(String email) throws UserEmailAlreadyRegisteredException {
@@ -62,6 +81,7 @@ public class UserService {
 	
 	private UserDTO toDTO(User user) {
 		UserDTO userDTO = new UserDTO();
+		userDTO.setId(user.getId());
 		userDTO.setCpf(user.getCpf());
 		userDTO.setEmail(user.getEmail());
 		userDTO.setName(user.getName());
@@ -70,6 +90,13 @@ public class UserService {
 	
 	private User fromDTO(UserDTO userDTO) {
 		User user = new User(userDTO.getEmail(), userDTO.getName(), userDTO.getCpf(), userDTO.getPassword());
+		return user;
+	}
+	
+	private User updateFromDTO(UserUpdateDTO userDTO, User user) {
+		user.setEmail(userDTO.getEmail());
+		user.setName(userDTO.getName());
+		user.setCpf(userDTO.getCpf());
 		return user;
 	}
 	

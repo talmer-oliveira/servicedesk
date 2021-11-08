@@ -1,10 +1,10 @@
 package com.talmer.servicedesk.service.exception;
 
-public class UnauthorizedException extends RuntimeException {
+public class ForbiddenException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	public UnauthorizedException(String message) {
+	public ForbiddenException(String message) {
 		super(message);
 	}
 }

@@ -34,13 +34,18 @@ public class User implements Serializable{
 	}
 
 	public User(String email, String name, String cpf, String password) {
-		super();
 		this.email = email;
 		this.name = name;
 		this.cpf = cpf;
 		this.password = password;
 		this.active = false;
 		addRole(Role.USER);
+	}
+	
+	public User(String email, String name, String cpf) {
+		this.email = email;
+		this.name = name;
+		this.cpf = cpf;
 	}
 
 	public String getId() {

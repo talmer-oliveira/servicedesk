@@ -25,7 +25,7 @@ import com.talmer.servicedesk.domain.enums.Role;
 import com.talmer.servicedesk.dto.UserDTO;
 import com.talmer.servicedesk.repository.UserRepository;
 import com.talmer.servicedesk.security.AuthUser;
-import com.talmer.servicedesk.service.exception.UnauthorizedException;
+import com.talmer.servicedesk.service.exception.ForbiddenException;
 import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
 import com.talmer.servicedesk.service.exception.UserNotFoundException;
 
@@ -74,7 +74,7 @@ public class UserServiceTest {
 	}
 
 	@Test
-	public void whenFindByIdIsCalledByTheUserItselfThenReturnTheFoundUser() throws UserNotFoundException, UnauthorizedException {
+	public void whenFindByIdIsCalledByTheUserItselfThenReturnTheFoundUser() throws UserNotFoundException, ForbiddenException {
 		UserDTO userDTO = new UserDTO("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
 		User expectedUser = new User("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
 		expectedUser.setId("sdjflkjdskfjdslfkj");
@@ -92,7 +92,7 @@ public class UserServiceTest {
 	}
 	
 	@Test
-	public void whenFindByIdIsCalledByAnAdminUserThenReturnTheFoundUser() throws UserNotFoundException, UnauthorizedException {
+	public void whenFindByIdIsCalledByAnAdminUserThenReturnTheFoundUser() throws UserNotFoundException, ForbiddenException {
 		UserDTO userDTO = new UserDTO("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
 		User expectedUser = new User("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
 		expectedUser.setId("sdjflkjdskfjdslfkj");
@@ -133,6 +133,6 @@ public class UserServiceTest {
 		
 		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
 		
-		assertThrows(UnauthorizedException.class, () -> userService.findById(expectedUser.getId()));
+		assertThrows(ForbiddenException.class, () -> userService.findById(expectedUser.getId()));
 	}
 }

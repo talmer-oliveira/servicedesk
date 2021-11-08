@@ -14,7 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.talmer.servicedesk.service.exception.UnauthorizedException;
+import com.talmer.servicedesk.service.exception.ForbiddenException;
 import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
 import com.talmer.servicedesk.service.exception.UserNotFoundException;
 
@@ -44,13 +44,13 @@ public class ResourceExceptionHandler {
 	public ResponseEntity<StandardResponseError> handleUserNotFoundException(UserNotFoundException e, HttpServletRequest request){
 		StandardResponseError error = 
 				new StandardResponseError(
-								System.currentTimeMillis(), NOT_FOUND.value(), "Não Eontrado", e.getMessage()
+								System.currentTimeMillis(), NOT_FOUND.value(), "Não Encontrado", e.getMessage()
 								,request.getRequestURI());
 		return ResponseEntity.status(NOT_FOUND).body(error);
 	}
 	
-	@ExceptionHandler(UnauthorizedException.class)
-	public ResponseEntity<StandardResponseError> handleUnauthorizedException(UnauthorizedException e, HttpServletRequest request){
+	@ExceptionHandler(ForbiddenException.class)
+	public ResponseEntity<StandardResponseError> handleUnauthorizedException(ForbiddenException e, HttpServletRequest request){
 		StandardResponseError error = 
 				new StandardResponseError(
 								System.currentTimeMillis(), FORBIDDEN.value(), "Forbidden", e.getMessage()
