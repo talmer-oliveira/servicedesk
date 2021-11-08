@@ -25,7 +25,7 @@ public class UserDTO {
 	
 	@CPF(message= "CPF com formato inválido")
 	private String cpf;
-	
+
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@Pattern(regexp = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}"
 			,message = "Não satisfaz os requisitos de segurança")

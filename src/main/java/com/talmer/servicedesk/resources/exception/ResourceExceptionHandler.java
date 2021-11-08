@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.talmer.servicedesk.service.exception.UnauthorizedException;
+import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
 import com.talmer.servicedesk.service.exception.UserNotFoundException;
 
 @ControllerAdvice
@@ -57,6 +58,16 @@ public class ResourceExceptionHandler {
 		return ResponseEntity.status(FORBIDDEN).body(error);
 	}
 	
+	@ExceptionHandler(UserEmailAlreadyRegisteredException.class)
+	public ResponseEntity<StandardResponseError> handleUserEmailAlreadyRegisteredException
+							(UserEmailAlreadyRegisteredException e, HttpServletRequest request){
+		StandardResponseError error = 
+					new StandardResponseError(
+									System.currentTimeMillis(), FORBIDDEN.value(), "Forbidden", e.getMessage()
+									,request.getRequestURI());
+		return ResponseEntity.status(FORBIDDEN).body(error);
+	}
+	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<StandardResponseError> handleGenericException(Exception e, HttpServletRequest request){
 		StandardResponseError error = 
@@ -65,5 +76,6 @@ public class ResourceExceptionHandler {
 									,request.getRequestURI());
 		return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(error);
 	}
+	
 	
 }

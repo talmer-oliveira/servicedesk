@@ -27,16 +27,21 @@ public class UserService {
 	@Autowired
 	private UserDetailsServiceImpl userDetailsServiceImpl;
 	
+	public User createUser(UserDTO userDTO){
+		verifyIfExists(userDTO.getEmail());
+		User user = fromDTO(userDTO);
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		User persistedUser = userRepository.save(user);
+		return persistedUser;
+	}
+	
 	public UserDTO findById(String id) throws UserNotFoundException, UnauthorizedException {
 		AuthUser authenticated = userDetailsServiceImpl.authenticated();
 		if(id == null || !authenticated.getId().equals(id) && !authenticated.hasRole(Role.ADMIN)) {
 			throw new UnauthorizedException("Você não tem permissão para acessar esse recurso");
 		}
 		Optional<User> user = userRepository.findById(id);
-		if(user.isPresent()) {
-			return toDTO(user.get());
-		}
-		throw new UserNotFoundException("Usuário não encontrado: " + id);
+		return instantiateIfIsUserPresent(user, id);
 	}
 	
 	public UserDTO findByEmail(String email) throws UserNotFoundException, UnauthorizedException {
@@ -45,18 +50,7 @@ public class UserService {
 			throw new UnauthorizedException("Você não tem permissão para acessar esse recurso");
 		}
 		Optional<User> user = userRepository.findByEmail(email);
-		if(user.isPresent()) {
-			return toDTO(user.get());
-		}
-		throw new UserNotFoundException("Usuário não encontrado: " + email);
-	}
-
-	public User createUser(UserDTO userDTO) throws UserEmailAlreadyRegisteredException {
-		verifyIfExists(userDTO.getEmail());
-		User user = fromDTO(userDTO);
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		User persistedUser = userRepository.save(user);
-		return persistedUser;
+		return instantiateIfIsUserPresent(user, email);
 	}
 	
 	private void verifyIfExists(String email) throws UserEmailAlreadyRegisteredException {
@@ -77,5 +71,12 @@ public class UserService {
 	private User fromDTO(UserDTO userDTO) {
 		User user = new User(userDTO.getEmail(), userDTO.getName(), userDTO.getCpf(), userDTO.getPassword());
 		return user;
+	}
+	
+	private UserDTO instantiateIfIsUserPresent(Optional<User> user, String atributte) {
+		if(user.isPresent()) {
+			return toDTO(user.get());
+		}
+		throw new UserNotFoundException("Usuário não encontrado: " + atributte);
 	}
 }
