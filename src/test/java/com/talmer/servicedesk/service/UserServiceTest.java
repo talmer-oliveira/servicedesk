@@ -1,6 +1,7 @@
 package com.talmer.servicedesk.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,7 +12,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.talmer.servicedesk.domain.User;
 import com.talmer.servicedesk.domain.enums.Role;
 import com.talmer.servicedesk.dto.UserDTO;
+import com.talmer.servicedesk.dto.UserUpdateDTO;
 import com.talmer.servicedesk.repository.UserRepository;
 import com.talmer.servicedesk.security.AuthUser;
 import com.talmer.servicedesk.service.exception.ForbiddenException;
@@ -59,7 +60,7 @@ public class UserServiceTest {
 		assertThat(savedPerson.getName(), is(equalTo(expectedSavedPerson.getName())));
 		assertThat(savedPerson.getActive(), is(equalTo(Boolean.FALSE)));
 		assertThat(savedPerson.getRoles().size(), is(equalTo(1)));
-		assertThat(savedPerson.getRoles(), Matchers.contains(Role.USER));
+		assertThat(savedPerson.getRoles(), contains(Role.USER));
 
 	}
 	
@@ -134,5 +135,57 @@ public class UserServiceTest {
 		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
 		
 		assertThrows(ForbiddenException.class, () -> userService.findById(expectedUser.getId()));
+	}
+
+	@Test
+	public void whenUpdateUserIsCalledByTheUserItselfThenUpdateTheUser(){
+		UserUpdateDTO userUpdateDTO = new UserUpdateDTO("teste.person@mail.com", "Test Person Change", "01561607061");
+		User alreadyRegisteredUser = new User("teste-email@tmail.com", "Test Person", "01561607061");
+		alreadyRegisteredUser.setId("617af8b8ca59013d804f0ac0");
+		Set<Role> roles = new HashSet<>();
+		roles.add(Role.USER);
+		AuthUser authenticatedUser = new AuthUser("617af8b8ca59013d804f0ac0", "teste-email@tmail.com", null, true, roles);
+		User expectedUpdatedUser = new User("teste.person@mail.com", "Test Person Change", "01561607061");
+
+		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(userRepository.findById(alreadyRegisteredUser.getId())).thenReturn(Optional.of(alreadyRegisteredUser));
+		when(userRepository.findByEmail(userUpdateDTO.getEmail())).thenReturn(Optional.empty());
+		when(userRepository.save(alreadyRegisteredUser)).thenReturn(expectedUpdatedUser);
+		
+		UserDTO updatedUser = userService.updateUser("617af8b8ca59013d804f0ac0", userUpdateDTO);
+
+		assertThat(updatedUser.getEmail(), is(equalTo(userUpdateDTO.getEmail())));
+		assertThat(updatedUser.getName(), is(equalTo(userUpdateDTO.getName())));
+	}
+
+	@Test
+	public void whenUpdateUserIsCalledByOtherThanTheUserOwnerThenThrowAnException(){
+		UserUpdateDTO userUpdateDTO = new UserUpdateDTO("teste.person@mail.com", "Test Person Change", "01561607061");
+		String anotherUserId = "617af8b8ca59013d804f0ac0";
+		Set<Role> roles = new HashSet<>();
+		roles.add(Role.USER);
+		AuthUser authenticatedUser = new AuthUser("617aff795aeb6e75aaf0dbb5", "teste-email@tmail.com", null, true, roles);
+		
+		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+
+		assertThrows(ForbiddenException.class, () -> userService.updateUser(anotherUserId, userUpdateDTO));
+	}
+
+	@Test
+	public void whenUpdateUserIsCalledWithAnotherUserEmailThenThrowAnException(){
+		User user = new User("teste.person@mail.com", "Another Person", "01561607061");
+		user.setId("617aff795aeb6e75aaf0dbb5");
+		User anotherUser = new User("teste-email@tmail.com", "Test Person", "01561607061");
+		anotherUser.setId("617af8b8ca59013d804f0ac0");
+		UserUpdateDTO userUpdateDTO = new UserUpdateDTO("teste-email@tmail.com", "Another Person", "01561607061");
+		Set<Role> roles = new HashSet<>();
+		roles.add(Role.USER);
+		AuthUser authenticatedUser = new AuthUser("617aff795aeb6e75aaf0dbb5", "teste.person@mail.com", null, true, roles);
+
+		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(userRepository.findByEmail(userUpdateDTO.getEmail())).thenReturn(Optional.of(anotherUser));
+
+		ForbiddenException exception = assertThrows(ForbiddenException.class, () -> userService.updateUser(user.getId(), userUpdateDTO));
+		assertThat("Email já cadastrado", is(equalTo(exception.getMessage())));
 	}
 }

@@ -38,14 +38,13 @@ public class UserService {
 	
 	public UserDTO updateUser(String id, UserUpdateDTO userUpdateDTO) {
 		checkIdAccessPermission(id);
-		Optional<User> optionalUser = userRepository.findById(id);
-		if(!optionalUser.isPresent()){
-			throw new UserNotFoundException("Usuário não encontrado: " + id);
-		}
+
 		Optional<User> foundByEmail = userRepository.findByEmail(userUpdateDTO.getEmail());
 		if(foundByEmail.isPresent() && !foundByEmail.get().getId().equals(id)) {
-			throw new ForbiddenException("Email já cadastrado.");
+			throw new ForbiddenException("Email já cadastrado");
 		}
+
+		Optional<User> optionalUser = userRepository.findById(id);
 		User userToUpdate = updateFromDTO(userUpdateDTO, optionalUser.get());
 		return toDTO(userRepository.save(userToUpdate));
 	}

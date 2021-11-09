@@ -71,7 +71,7 @@ public class UserResourceTest {
 	}
 	
 	@Test
-	public void whenPOSTIsCalledWithAnAlreadyRegisteredUserThenThrowAnException() throws Exception {
+	public void whenPOSTIsCalledWithAnAlreadyRegisteredUserThenReturnAnError() throws Exception {
 		UserDTO expectedUserDTO = new UserDTO("teste-email@tmail.com", "Test Person", "01561607061", "o7,%kdy45LL?)p0");
 		
 		when(userService.createUser(any(UserDTO.class)))
