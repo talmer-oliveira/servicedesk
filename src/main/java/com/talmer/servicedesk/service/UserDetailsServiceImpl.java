@@ -3,7 +3,6 @@ package com.talmer.servicedesk.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,12 +28,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		return new AuthUser(user.getId(), user.getEmail(), user.getPassword(), user.getActive(), user.getRoles());
 	}
 	
-	public AuthUser authenticated() {
-		try {
-			return (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
 }

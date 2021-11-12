@@ -11,6 +11,7 @@ import com.talmer.servicedesk.domain.enums.Role;
 import com.talmer.servicedesk.dto.UserDTO;
 import com.talmer.servicedesk.dto.UserUpdateDTO;
 import com.talmer.servicedesk.repository.UserRepository;
+import com.talmer.servicedesk.security.AuthService;
 import com.talmer.servicedesk.security.AuthUser;
 import com.talmer.servicedesk.service.exception.ForbiddenException;
 import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
@@ -26,7 +27,7 @@ public class UserService {
 	private BCryptPasswordEncoder passwordEncoder;
 
 	@Autowired
-	private UserDetailsServiceImpl userDetailsServiceImpl;
+	private AuthService authService;
 	
 	public User createUser(UserDTO userDTO){
 		verifyIfExists(userDTO.getEmail());
@@ -56,7 +57,7 @@ public class UserService {
 	}
 	
 	public UserDTO findByEmail(String email){
-		AuthUser authenticated = userDetailsServiceImpl.authenticated();
+		AuthUser authenticated = authService.authenticated();
 		if(email == null || !authenticated.getUsername().equals(email) && !authenticated.hasRole(Role.ADMIN)) {
 			throw new ForbiddenException("Você não tem permissão para acessar esse recurso");
 		}
@@ -65,7 +66,7 @@ public class UserService {
 	}
 	
 	private void checkIdAccessPermission(String id) {
-		AuthUser authenticated = userDetailsServiceImpl.authenticated();
+		AuthUser authenticated = authService.authenticated();
 		if(id == null || !authenticated.getId().equals(id) && !authenticated.hasRole(Role.ADMIN)) {
 			throw new ForbiddenException("Você não tem permissão para acessar esse recurso");
 		}

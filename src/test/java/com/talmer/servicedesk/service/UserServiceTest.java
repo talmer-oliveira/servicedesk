@@ -25,6 +25,7 @@ import com.talmer.servicedesk.domain.enums.Role;
 import com.talmer.servicedesk.dto.UserDTO;
 import com.talmer.servicedesk.dto.UserUpdateDTO;
 import com.talmer.servicedesk.repository.UserRepository;
+import com.talmer.servicedesk.security.AuthService;
 import com.talmer.servicedesk.security.AuthUser;
 import com.talmer.servicedesk.service.exception.ForbiddenException;
 import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
@@ -43,7 +44,7 @@ public class UserServiceTest {
 	private UserService userService;
 	
 	@Mock
-	private UserDetailsServiceImpl userDetailsServiceImpl;
+	private AuthService authService;
 	
 	@Test
 	public void whenPersonIsInformedThenItShouldBeCreated() throws UserEmailAlreadyRegisteredException {
@@ -84,7 +85,7 @@ public class UserServiceTest {
 		AuthUser authenticatedUser = new AuthUser("sdjflkjdskfjdslfkj", "teste-email@tmail.com", null, true, roles);
 		
 		when(userRepository.findById(expectedUser.getId())).thenReturn(Optional.of(expectedUser));
-		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(authService.authenticated()).thenReturn(authenticatedUser);
 		
 		UserDTO returnedUserDTO = userService.findById(expectedUser.getId());
 		
@@ -103,7 +104,7 @@ public class UserServiceTest {
 		AuthUser authenticatedUser = new AuthUser("ssssssss", "teste-email@tmail.com", null, true, roles);
 		
 		when(userRepository.findById(expectedUser.getId())).thenReturn(Optional.of(expectedUser));
-		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(authService.authenticated()).thenReturn(authenticatedUser);
 		
 		UserDTO returnedUserDTO = userService.findById(expectedUser.getId());
 		
@@ -119,7 +120,7 @@ public class UserServiceTest {
 		AuthUser authenticatedUser = new AuthUser("ssssssss", "teste-email@tmail.com", null, true, roles);
 		
 		when(userRepository.findById("123456")).thenReturn(Optional.empty());
-		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(authService.authenticated()).thenReturn(authenticatedUser);
 		
 		assertThrows(UserNotFoundException.class, () -> userService.findById("123456"));
 	}
@@ -132,7 +133,7 @@ public class UserServiceTest {
 		roles.add(Role.USER);
 		AuthUser authenticatedUser = new AuthUser("ssssssss", "teste-email@tmail.com", null, true, roles);
 		
-		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(authService.authenticated()).thenReturn(authenticatedUser);
 		
 		assertThrows(ForbiddenException.class, () -> userService.findById(expectedUser.getId()));
 	}
@@ -147,7 +148,7 @@ public class UserServiceTest {
 		AuthUser authenticatedUser = new AuthUser("617af8b8ca59013d804f0ac0", "teste-email@tmail.com", null, true, roles);
 		User expectedUpdatedUser = new User("teste.person@mail.com", "Test Person Change", "01561607061");
 
-		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(authService.authenticated()).thenReturn(authenticatedUser);
 		when(userRepository.findById(alreadyRegisteredUser.getId())).thenReturn(Optional.of(alreadyRegisteredUser));
 		when(userRepository.findByEmail(userUpdateDTO.getEmail())).thenReturn(Optional.empty());
 		when(userRepository.save(alreadyRegisteredUser)).thenReturn(expectedUpdatedUser);
@@ -166,7 +167,7 @@ public class UserServiceTest {
 		roles.add(Role.USER);
 		AuthUser authenticatedUser = new AuthUser("617aff795aeb6e75aaf0dbb5", "teste-email@tmail.com", null, true, roles);
 		
-		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(authService.authenticated()).thenReturn(authenticatedUser);
 
 		assertThrows(ForbiddenException.class, () -> userService.updateUser(anotherUserId, userUpdateDTO));
 	}
@@ -182,7 +183,7 @@ public class UserServiceTest {
 		roles.add(Role.USER);
 		AuthUser authenticatedUser = new AuthUser("617aff795aeb6e75aaf0dbb5", "teste.person@mail.com", null, true, roles);
 
-		when(userDetailsServiceImpl.authenticated()).thenReturn(authenticatedUser);
+		when(authService.authenticated()).thenReturn(authenticatedUser);
 		when(userRepository.findByEmail(userUpdateDTO.getEmail())).thenReturn(Optional.of(anotherUser));
 
 		ForbiddenException exception = assertThrows(ForbiddenException.class, () -> userService.updateUser(user.getId(), userUpdateDTO));
