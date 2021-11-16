@@ -4,33 +4,41 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.google.gson.Gson;
-import com.talmer.servicedesk.domain.User;
-import com.talmer.servicedesk.dto.UserDTO;
-import com.talmer.servicedesk.dto.UserUpdateDTO;
-import com.talmer.servicedesk.resources.exception.ResourceExceptionHandler;
-import com.talmer.servicedesk.service.UserService;
-import com.talmer.servicedesk.service.exception.ForbiddenException;
-import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
+
+import com.google.gson.Gson;
+import com.talmer.servicedesk.domain.User;
+import com.talmer.servicedesk.domain.enums.Role;
+import com.talmer.servicedesk.dto.UserDTO;
+import com.talmer.servicedesk.dto.UserUpdateDTO;
+import com.talmer.servicedesk.resources.exception.ResourceExceptionHandler;
+import com.talmer.servicedesk.service.UserService;
+import com.talmer.servicedesk.service.exception.ForbiddenException;
+import com.talmer.servicedesk.service.exception.UserEmailAlreadyRegisteredException;
+import com.talmer.servicedesk.service.exception.UserNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 public class UserResourceTest {
@@ -108,7 +116,7 @@ public class UserResourceTest {
 	        return null;
 	    });
 
-		mockMvc.perform(MockMvcRequestBuilders.put("/usuarios/"+id)
+		mockMvc.perform(put("/usuarios/"+id)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(gson.toJson(userUpdateDTO)))
 				.andExpect(status().isNoContent());
@@ -123,12 +131,37 @@ public class UserResourceTest {
 		when(userService.updateUser(eq(id), any(UserUpdateDTO.class)))
 		.thenThrow(new ForbiddenException(message));
 
-		mockMvc.perform(MockMvcRequestBuilders.put("/usuarios/"+id)
+		mockMvc.perform(put("/usuarios/"+id)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(gson.toJson(userUpdateDTO)))
-				.andExpect(status().isForbidden()).andExpect(jsonPath("$.error", is("Forbidden")))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.error", is("Forbidden")))
 				.andExpect(jsonPath("$.message", is(equalTo(message))));
 	}
 
+	@Test
+	public void whenAddRoleIsCalledWithAnExistentUserIdByTheAdminThenAddTheRoleAndReturnANotContentResponseStatus() throws Exception {
+		String id = "617aff795aeb6e75aaf0dbb5";
+		
+		Mockito.doNothing().when(userService).addRoleToUser(id, Role.DEV);
+		
+		mockMvc.perform(patch("/usuarios/"+id+"/addRole")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(gson.toJson(Role.DEV)))
+				.andExpect(status().isNoContent());
+	}
 	
+	@Test
+	public void whenAddRoleIsCalledWithANonExistentUserIdThenReturnANotFoundStatus() throws Exception {
+		String id = "617aff795aeb6e75aaf0dbb5";
+		
+		doThrow(new UserNotFoundException("Usuário não encontrado: " + id))
+		.when(userService).addRoleToUser(id, Role.DEV);
+		
+		mockMvc.perform(patch("/usuarios/"+id+"/addRole")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(gson.toJson(Role.DEV)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.error", is("Não Encontrado")));
+	}
 }

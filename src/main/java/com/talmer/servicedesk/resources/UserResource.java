@@ -8,6 +8,8 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.talmer.servicedesk.domain.User;
+import com.talmer.servicedesk.domain.enums.Role;
 import com.talmer.servicedesk.dto.UserDTO;
 import com.talmer.servicedesk.dto.UserUpdateDTO;
 import com.talmer.servicedesk.service.UserService;
@@ -38,6 +41,13 @@ public class UserResource {
 	@PutMapping("/{id}")
 	public ResponseEntity<Void> updateUser(@PathVariable String id, @Valid @RequestBody UserUpdateDTO userUpdateDTO){
 		userService.updateUser(id, userUpdateDTO);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PatchMapping("/{id}/addRole")
+	public ResponseEntity<Void> addRoleToUser(@PathVariable String id, @RequestBody Role role){
+		userService.addRoleToUser(id, role);
 		return ResponseEntity.noContent().build();
 	}
 }

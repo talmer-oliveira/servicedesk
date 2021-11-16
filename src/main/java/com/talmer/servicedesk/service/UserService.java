@@ -65,6 +65,20 @@ public class UserService {
 		return instantiateIfIsUserPresent(user, email);
 	}
 	
+	public void addRoleToUser(String userId, Role role) {
+		Optional<User> optional = userRepository.findById(userId);
+		if(optional.isPresent()) {
+			User user = optional.get();
+			if(!user.getRoles().contains(role)) {
+				user.addRole(role);
+				userRepository.save(user);
+			}
+		}
+		else {
+			throw new UserNotFoundException("Usuário não encontrado: " + userId);
+		}
+	}
+	
 	private void checkIdAccessPermission(String id) {
 		AuthUser authenticated = authService.authenticated();
 		if(id == null || !authenticated.getId().equals(id) && !authenticated.hasRole(Role.ADMIN)) {

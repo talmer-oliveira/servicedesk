@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.oneOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -188,5 +189,27 @@ public class UserServiceTest {
 
 		ForbiddenException exception = assertThrows(ForbiddenException.class, () -> userService.updateUser(user.getId(), userUpdateDTO));
 		assertThat("Email já cadastrado", is(equalTo(exception.getMessage())));
+	}
+	
+	@Test
+	public void whenAddRoleToUserIsCalledThenUpdateTheUserWithTheNewRole() {
+		String id = "617aff795aeb6e75aaf0dbb5";
+		User alreadySavedUser = new User("teste-email@tmail.com", "Test Person", "01561607061");
+		alreadySavedUser.setId(id);
+		
+		when(userRepository.findById(id)).thenReturn(Optional.of(alreadySavedUser));
+		
+		userService.addRoleToUser(id, Role.DEV);
+		
+		assertThat(alreadySavedUser.getRoles(), contains(oneOf(Role.DEV)));
+	}
+	
+	@Test
+	public void whenAddRoleToUserIsCalledWithAnNonExistentUserIdThenThrowAnException() {
+		String id = "617aff795aeb6e75aaf0dbb5";
+		
+		when(userRepository.findById(id)).thenReturn(Optional.empty());
+		
+		assertThrows(UserNotFoundException.class, () -> userService.addRoleToUser(id, Role.DEV));
 	}
 }
