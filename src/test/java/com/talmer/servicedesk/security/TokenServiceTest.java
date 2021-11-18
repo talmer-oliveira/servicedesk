@@ -1,5 +1,7 @@
 package com.talmer.servicedesk.security;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +22,7 @@ public class TokenServiceTest {
     public void whenCreateTokenIsCalledWithAUsernameAnExceptionShouldNotBeThrown(){
         TokenService tokenService = new TokenService(signingKey);
 
-        Assertions.assertDoesNotThrow(() -> tokenService.createToken(username, expiration));
+        Assertions.assertDoesNotThrow(() -> tokenService.createToken(username, Duration.ofSeconds(expiration)));
     }
 
 }

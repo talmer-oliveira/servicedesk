@@ -1,6 +1,7 @@
 package com.talmer.servicedesk.security;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -51,7 +52,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter{
                                             Authentication authResult) throws IOException, ServletException {
         
         String username = ((AuthUser) authResult.getPrincipal()).getUsername();
-        String token = tokenService.createToken(username, 60L);
+        String token = tokenService.createToken(username, Duration.ofSeconds(60L));
         
         response.addHeader("Authorization", "Bearer " + token);
     }

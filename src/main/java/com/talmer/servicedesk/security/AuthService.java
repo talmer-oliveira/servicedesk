@@ -1,5 +1,7 @@
 package com.talmer.servicedesk.security;
 
+import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,6 @@ public class AuthService {
 
     public String refreshToken(){
         AuthUser authUser = authenticated();
-        return tokenService.createToken(authUser.getUsername(), 60L);
+        return tokenService.createToken(authUser.getUsername(), Duration.ofSeconds(60L));
     }
 }

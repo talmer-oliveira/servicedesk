@@ -1,5 +1,6 @@
 package com.talmer.servicedesk.security;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -29,10 +30,10 @@ public class TokenService {
 
     public TokenService(){}
 
-    public String createToken(String username, Long secondsToExpire){
+    public String createToken(String username, Duration expiration){
         return Jwts.builder()
                 .setSubject(username)
-                .setExpiration(Date.from(LocalDateTime.now().plusSeconds(secondsToExpire).atZone(ZoneId.systemDefault()).toInstant()))
+                .setExpiration(Date.from(LocalDateTime.now().plus(expiration).atZone(ZoneId.systemDefault()).toInstant()))
                 .signWith(SignatureAlgorithm.HS512, signingKey.getBytes())
                 .compact();
     }
