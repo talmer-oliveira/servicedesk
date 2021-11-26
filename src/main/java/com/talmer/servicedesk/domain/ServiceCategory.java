@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.talmer.servicedesk.domain.enums.ServiceCategoryType;
 
-@Document
+@Document(collection = "service_category")
 public class ServiceCategory implements Serializable{
 
 	private static final long serialVersionUID = 1L;
