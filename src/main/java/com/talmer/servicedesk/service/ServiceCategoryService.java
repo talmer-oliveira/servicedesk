@@ -12,6 +12,7 @@ import com.talmer.servicedesk.domain.enums.ServiceCategoryType;
 import com.talmer.servicedesk.dto.ServiceCategoryDTO;
 import com.talmer.servicedesk.repository.ServiceCategoryRepository;
 import com.talmer.servicedesk.service.exception.ServiceCategoryAlreadyRegisteredException;
+import com.talmer.servicedesk.service.exception.ServiceCategoryNotFoundException;
 
 @Service
 public class ServiceCategoryService {
@@ -26,6 +27,17 @@ public class ServiceCategoryService {
 		return savedCategory;
 	}
 	
+	public ServiceCategoryDTO findByName(String name){
+		Optional<ServiceCategory> optSavedCategory = repository.findByName(name);
+		if(optSavedCategory.isPresent()){
+			ServiceCategory serviceCategory = optSavedCategory.get();
+			return new ServiceCategoryDTO(serviceCategory.getName(), serviceCategory.getCategoryType().getCode());
+		}
+		else{
+			throw new ServiceCategoryNotFoundException("Categoria de Serviço não encontrada: " + name);
+		}
+	}
+
 	public List<ServiceCategoryDTO> findAll(){
 		return repository.findAll()
 						.stream()

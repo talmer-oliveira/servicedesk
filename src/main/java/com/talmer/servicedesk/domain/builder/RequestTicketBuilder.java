@@ -3,7 +3,7 @@ package com.talmer.servicedesk.domain.builder;
 import java.util.Date;
 
 import com.talmer.servicedesk.domain.RequestTicket;
-import com.talmer.servicedesk.domain.ServiceCategory;
+import com.talmer.servicedesk.dto.ServiceCategoryDTO;
 import com.talmer.servicedesk.dto.AuthorDTO;
 
 public class RequestTicketBuilder {
@@ -34,13 +34,17 @@ public class RequestTicketBuilder {
 		return this;
 	}
 	
-	public RequestTicketBuilder serviceCategory(ServiceCategory serviceCategory) {
-		requestTicket.setServiceCategory(serviceCategory);
+	public RequestTicketBuilder serviceCategory(ServiceCategoryDTO serviceCategory) {
+		requestTicket.setServiceCategoryDTO(serviceCategory);
 		return this;
 	}
 	
 	public RequestTicketBuilder requester(AuthorDTO requester) {
 		requestTicket.setRequester(requester);
 		return this;
+	}
+
+	public RequestTicket build(){
+		return requestTicket;
 	}
 }

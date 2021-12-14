@@ -9,9 +9,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.talmer.servicedesk.domain.enums.Priority;
 import com.talmer.servicedesk.domain.enums.Status;
 import com.talmer.servicedesk.dto.AuthorDTO;
+import com.talmer.servicedesk.dto.ITAssetDTO;
+import com.talmer.servicedesk.dto.ServiceCategoryDTO;
 import com.talmer.servicedesk.dto.UpdateCommentDTO;
 
-@Document
+@Document(collection = "ticket")
 public class RequestTicket {
 
 	@Id
@@ -27,9 +29,9 @@ public class RequestTicket {
 	
 	private Status status;
 	
-	private ServiceCategory serviceCategory;
+	private ServiceCategoryDTO serviceCategoryDTO;
 	
-	private ITAsset targetAsset;
+	private ITAssetDTO targetAssetDTO;
 	
 	private AuthorDTO requester;
 	
@@ -38,6 +40,16 @@ public class RequestTicket {
 	private Set<UpdateCommentDTO> updates;
 	
 	public RequestTicket() {}
+
+	public RequestTicket(String title, String description, Date timestamp, Status status,
+			ServiceCategoryDTO serviceCategoryDTO, AuthorDTO requester) {
+		this.title = title;
+		this.description = description;
+		this.timestamp = timestamp;
+		this.status = status;
+		this.serviceCategoryDTO = serviceCategoryDTO;
+		this.requester = requester;
+	}
 
 	public String getId() {
 		return id;
@@ -87,20 +99,20 @@ public class RequestTicket {
 		this.status = Status.toEnum(status);
 	}
 
-	public ServiceCategory getServiceCategory() {
-		return serviceCategory;
+	public ServiceCategoryDTO getServiceCategoryDTO() {
+		return serviceCategoryDTO;
 	}
 
-	public void setServiceCategory(ServiceCategory serviceCategory) {
-		this.serviceCategory = serviceCategory;
+	public void setServiceCategoryDTO(ServiceCategoryDTO serviceCategoryDTO) {
+		this.serviceCategoryDTO = serviceCategoryDTO;
 	}
 
-	public ITAsset getTargetAsset() {
-		return targetAsset;
+	public ITAssetDTO getTargetAssetDTO() {
+		return targetAssetDTO;
 	}
 
-	public void setTargetAsset(ITAsset targetAsset) {
-		this.targetAsset = targetAsset;
+	public void setTargetAssetDTO(ITAssetDTO targetAssetDTO) {
+		this.targetAssetDTO = targetAssetDTO;
 	}
 
 	public AuthorDTO getRequester() {

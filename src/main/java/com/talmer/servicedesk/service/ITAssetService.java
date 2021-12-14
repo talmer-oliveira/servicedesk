@@ -25,6 +25,17 @@ public class ITAssetService {
         return assetRepository.save(asset);
     }
 
+    public ITAssetDTO findByTag(String tag){
+        Optional<ITAsset> optional = assetRepository.findByTag(tag);
+        if(optional.isPresent()){
+            ITAsset asset = optional.get();
+            return new ITAssetDTO(asset.getTag(), asset.getType().getCode());
+        }
+        else{
+            throw new ITAssetNotFoundException("Ativo de TI não encontrado: " + tag);
+        }
+    }
+
     public List<ITAssetDTO> findAll(){
 		return assetRepository.findAll()
 						.stream()
